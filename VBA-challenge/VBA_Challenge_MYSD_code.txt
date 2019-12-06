@@ -1,0 +1,161 @@
+Sub Ticker():
+
+For Each ws In Worksheets
+
+    Dim lastrow As Double
+    lastrow = ws.Cells(Rows.Count, 1).End(xlUp).Row
+    Dim TickerName As String
+    Dim Table_Row As Double
+    ws.Cells(1, 9).Value = "Ticker"
+    ws.Cells(1, 10).Value = "Yearly Change"
+    ws.Cells(1, 11).Value = "Percent Change"
+    ws.Cells(1, 12).Value = "Total Stock Volume"
+    
+    
+    Table_Row = 2
+    
+    
+    For i = 2 To lastrow
+        If ws.Cells(i, 1).Value <> ws.Cells(i + 1, 1).Value Then
+            TickerName = ws.Cells(i, 1).Value
+            ws.Range("I" & Table_Row) = TickerName
+            Table_Row = Table_Row + 1
+            
+        End If
+    Next i
+    
+    Dim OpeningTicker As Double
+    Dim ClosingTicker As Double
+    Dim TickerChange As Double
+    Dim TickerCount As Double
+    Dim PercentChange As Double
+    Dim VolumeTotal As Double
+    
+    
+    
+    OpeningTicker = 0
+    ClosingTicker = 0
+    TickerCount = 0
+    VolumeTotal = 0
+    
+    
+    OpeningTicker = ws.Range("C" & 2)
+    
+    
+    For i = 2 To lastrow
+        
+        
+        If ws.Cells(i, 1).Value = ws.Cells(i + 1, 1).Value Then
+            
+            VolumeTotal = VolumeTotal + ws.Cells(i, 7).Value
+        
+        
+        ElseIf ws.Cells(i, 1).Value <> ws.Cells(i + 1, 1).Value Then
+            
+            ClosingTicker = ws.Range("F" & i)
+            TickerChange = ClosingTicker - OpeningTicker
+            
+            If OpeningTicker = 0 Then
+                
+                PercentChange = 0
+            
+            ElseIf OpeningTicker <> 0 Then
+            
+                PercentChange = TickerChange / OpeningTicker
+                
+            End If
+            
+            
+            ws.Range("J" & (TickerCount + 2)) = TickerChange
+            ws.Range("K" & (TickerCount + 2)) = PercentChange
+            ws.Range("K" & (TickerCount + 2)).Style = "Percent"
+            
+            If TickerChange < 0 Then
+                ws.Range("J" & (TickerCount + 2)).Interior.ColorIndex = 3
+            ElseIf TickerChange > 0 Then
+                ws.Range("J" & (TickerCount + 2)).Interior.ColorIndex = 4
+            End If
+            
+            If PercentChange < 0 Then
+                ws.Range("k" & (TickerCount + 2)).Interior.ColorIndex = 3
+            ElseIf TickerChange > 0 Then
+                ws.Range("k" & (TickerCount + 2)).Interior.ColorIndex = 4
+            End If
+            
+            VolumeTotal = VolumeTotal + ws.Cells(i, 7).Value
+            
+            ws.Range("L" & (TickerCount + 2)) = VolumeTotal
+            
+            VolumeTotal = 0
+            
+            TickerCount = TickerCount + 1
+            
+            OpeningTicker = ws.Range("C" & i + 1)
+            
+        End If
+        
+        
+        
+        
+        
+    Next i
+    
+    Dim lastrowtable As Double
+    
+    
+    lastrowtable = ws.Cells(Rows.Count, 12).End(xlUp).Row
+    ws.Cells(1, 15).Value = "Ticker"
+    ws.Cells(1, 16).Value = "Value"
+    ws.Cells(2, 14).Value = "Greatest Percent Increase"
+    ws.Cells(3, 14).Value = "Greatest Percent Decrease"
+    ws.Cells(4, 14).Value = "Greatest Total Volume"
+    
+    Dim PercIncTicker As String
+    Dim PercDecTicker As String
+    Dim VolumeTicker As String
+    Dim GreatPercInc As Double
+    Dim GreatPercDec As Double
+    Dim GreatTotalVol As Double
+      
+    Dim volrange As Range
+    Set volrange = ws.Range("L2:L" & lastrowtable)
+    
+    Dim PercRange As Range
+    Set PercRange = ws.Range("K2:K" & lastrowtable)
+    
+    GreatPercInc = Application.WorksheetFunction.Max(PercRange)
+    GreatPercDec = Application.WorksheetFunction.Min(PercRange)
+    GreatTotalVol = Application.WorksheetFunction.Max(volrange)
+    
+    ws.Cells(2, 16).Value = GreatPercInc
+    ws.Range("P2").Style = "Percent"
+    ws.Cells(3, 16).Value = GreatPercDec
+    ws.Range("P3").Style = "Percent"
+    ws.Cells(4, 16).Value = GreatTotalVol
+    
+    
+    For i = 2 To lastrowtable
+        If ws.Cells(i, 11).Value = GreatPercInc Then
+            PercIncTicker = ws.Cells(i, 9).Value
+        ElseIf ws.Cells(i, 11).Value = GreatPercDec Then
+            PercDecTicker = ws.Cells(i, 9).Value
+        ElseIf ws.Cells(i, 12).Value = GreatTotalVol Then
+            VolumeTicker = ws.Cells(i, 9).Value
+            
+        End If
+    Next i
+    
+    ws.Cells(2, 15).Value = PercIncTicker
+    ws.Cells(3, 15).Value = PercDecTicker
+    ws.Cells(4, 15).Value = VolumeTicker
+    
+    
+    
+    
+Next ws
+
+        
+    
+End Sub
+
+
